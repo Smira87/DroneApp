@@ -1,5 +1,6 @@
-from dronekit import connect, VehicleMode
+from dronekit import connect, VehicleMode, LocationGlobalRelative
 import time
+import sys
 
 print("Try Connect")
 
@@ -39,4 +40,36 @@ def arm_and_takeoff(aTargetAltitude):
             break
         time.sleep(1)
 
-arm_and_takeoff(20)
+def fly_around(speed):
+    vehicle.airspeed = speed
+    cur_latitude = vehicle.location.global_relative_frame.lat
+    cur_longtitude = vehicle.location.global_relative_frame.lon
+
+    point1 = LocationGlobalRelative(cur_latitude + 0.001, cur_longtitude + 0.001, alt)
+    vehicle.simple_goto(point1)
+    # sleep so we can see the change in map
+    time.sleep(30)
+
+    point1 = LocationGlobalRelative(cur_latitude - 0.001, cur_longtitude + 0.001, alt)
+    vehicle.simple_goto(point1)
+    # sleep so we can see the change in map
+    time.sleep(30)
+
+    print("Returning to Launch")
+    vehicle.mode = VehicleMode("RTL")
+
+    # Close vehicle object before exiting script
+    print("Close vehicle object")
+    vehicle.close()
+
+sys.stdout.write("Please enter an altitude:")
+sys.stdout.flush()
+alt = int(sys.stdin.readline().strip())
+
+arm_and_takeoff(alt)
+
+sys.stdout.write("Please enter an airspeed:")
+sys.stdout.flush()
+speed = int(sys.stdin.readline().strip())
+
+fly_around(speed)
