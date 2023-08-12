@@ -12,7 +12,7 @@ def get_distance_and_angle(x1, y1, x2, y2):
     delta_x = (x1 - x2)**2
     delta_y = (y1 - y2)**2
     distance_in_pixels = (delta_y + delta_x)**0.5
-    distance = distance_in_pixels * 0.38
+    distance = distance_in_pixels * 0.00038
 
     angle_radian = atan2(delta_y, delta_x)
     angle_degrees = angle_radian*(180/pi)
@@ -40,7 +40,11 @@ def get_point_at_distance(lat1, lon1, d, bearing, R=6371):
 
 distance, angle_degrees = get_distance_and_angle(POINT_X, POINT_Y, CENTER_X, CENTER_Y)
 
-print(get_point_at_distance(POINT_LAT, POINT_LON, distance, angle_degrees))
+
+real_angle = -((360 - AZ) - angle_degrees) - 90
+
+print(get_point_at_distance(POINT_LAT, POINT_LON, distance, real_angle))
+print(real_angle, distance)
 
 
 
