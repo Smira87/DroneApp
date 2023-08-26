@@ -26,6 +26,7 @@ if (is_arm == 0):
     0, 0, 0)    # param 5 ~ 7 not used
     vehicle.send_mavlink(msg)
     is_arm = 1
+    time.sleep(1)
     need_alt = 20
 if (is_arm == 1):
     while True:
@@ -41,16 +42,22 @@ if (is_arm == 1):
 
         d_alt = mav_alt - need_alt
 
-        print(d_alt)
+        print("Heading:" + str(vehicle.heading))
 
         if (d_alt < -10):
             # Need UP
-            vehicle.channels.overrides = {'3':1500}
+            vehicle.channels.overrides['3'] = 1500
         if (-10 < d_alt < 0):
             # Need UP
-            vehicle.channels.overrides = {'3':1480}
+            vehicle.channels.overrides['3'] = 1480
         if (d_alt > 0):
             # Need Down
-            vehicle.channels.overrides = {'3':1478}
+            reached_height = True
+            vehicle.channels.overrides['3'] = 1478
+            reached_height = True
 
+        if vehicle.heading > 100:
+            vehicle.channels.overrides['4'] = 1479
+        elif vehicle.heading < 100:
+            vehicle.channels.overrides['4'] = 1521
         time.sleep(0.8)
