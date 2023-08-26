@@ -56,8 +56,10 @@ if (is_arm == 1):
             vehicle.channels.overrides['3'] = 1478
             reached_height = True
 
-        if vehicle.heading > 100:
+        if vehicle.heading >= 101:
             vehicle.channels.overrides['4'] = 1479
-        elif vehicle.heading < 100:
+        elif vehicle.heading <= 99:
             vehicle.channels.overrides['4'] = 1521
+        else:
+            vehicle.channels.overrides['4'] = 1500
         time.sleep(0.8)
