@@ -52,13 +52,14 @@ if (is_arm == 1):
             if (d_alt < -10):
                 # Need UP
                 vz = 1500
-            if (-10 < d_alt < 0):
+            elif (-10 < d_alt < 0):
                 # Need UP
                 vz = 1480
-            if (d_alt > 0):
+            elif (d_alt > 0):
                 # Need Down
 
                 vz = 1478
+
 
         vehicle.channels.overrides = {'3': vz}
         time.sleep(0.8)
