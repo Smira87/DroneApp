@@ -11,6 +11,10 @@ vehicle = connect('tcp:127.0.0.1:5763')
 vehicle.mode    = VehicleMode("STABILIZE")
 is_arm = 0
 mav_alt = 0
+need_alt = 20
+right_direction = False
+right_height = False
+
 print('+++++++++++++++++')
 print('ARM !!!')
 print('+++++++++++++++++')
@@ -27,7 +31,7 @@ if (is_arm == 0):
     vehicle.send_mavlink(msg)
     is_arm = 1
     time.sleep(1)
-    need_alt = 20
+
 if (is_arm == 1):
     while True:
         try:
@@ -42,24 +46,19 @@ if (is_arm == 1):
 
         d_alt = mav_alt - need_alt
 
-        print("Heading:" + str(vehicle.heading))
+        print("Pitch:" + str(vehicle.attitude.pitch))
 
-        if (d_alt < -10):
-            # Need UP
-            vehicle.channels.overrides['3'] = 1500
-        if (-10 < d_alt < 0):
-            # Need UP
-            vehicle.channels.overrides['3'] = 1480
-        if (d_alt > 0):
-            # Need Down
-            reached_height = True
-            vehicle.channels.overrides['3'] = 1478
-            reached_height = True
+        if not right_height and not right_direction:
+            if (d_alt < -10):
+                # Need UP
+                vz = 1500
+            if (-10 < d_alt < 0):
+                # Need UP
+                vz = 1480
+            if (d_alt > 0):
+                # Need Down
 
-        if vehicle.heading >= 101:
-            vehicle.channels.overrides['4'] = 1479
-        elif vehicle.heading <= 99:
-            vehicle.channels.overrides['4'] = 1521
-        else:
-            vehicle.channels.overrides['4'] = 1500
+                vz = 1478
+
+        vehicle.channels.overrides = {'3': vz}
         time.sleep(0.8)
