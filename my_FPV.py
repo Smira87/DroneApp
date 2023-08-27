@@ -12,6 +12,9 @@ vehicle.mode    = VehicleMode("STABILIZE")
 is_arm = 0
 mav_alt = 0
 need_alt = 20
+need_heading = 100
+vz = 1500
+yaw = 1500
 right_direction = False
 right_height = False
 
@@ -30,7 +33,7 @@ if (is_arm == 0):
     0, 0, 0)    # param 5 ~ 7 not used
     vehicle.send_mavlink(msg)
     is_arm = 1
-    time.sleep(1)
+    time.sleep(3)
 
 if (is_arm == 1):
     while True:
@@ -48,7 +51,7 @@ if (is_arm == 1):
 
         print("Pitch:" + str(vehicle.attitude.pitch))
 
-        if not right_height and not right_direction:
+        if not right_height or not right_direction:
             if (d_alt < -10):
                 # Need UP
                 vz = 1500
@@ -57,9 +60,20 @@ if (is_arm == 1):
                 vz = 1480
             elif (d_alt > 0):
                 # Need Down
-
                 vz = 1478
+                right_height = True
+            if vehicle.heading and vehicle.heading >= need_heading + 30:
+                yaw = 1450
+            elif vehicle.heading and vehicle.heading <= need_heading - 30:
+                yaw = 1550
+            elif vehicle.heading and vehicle.heading >= need_heading + 1:
+                yaw = 1479
+            elif vehicle.heading and vehicle.heading <= need_heading - 1:
+                yaw = 1521
+            elif vehicle.heading and vehicle.heading == need_heading:
+                yaw = 1500
+                right_direction = True
 
 
-        vehicle.channels.overrides = {'3': vz}
+        vehicle.channels.overrides = {'4': yaw, '3': vz}
         time.sleep(0.8)
