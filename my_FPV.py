@@ -77,6 +77,9 @@ if (is_arm == 1):
 
         elif right_height and right_direction:
             pitch = 1000
-            vz = 1473
+            if d_alt < 0:
+                vz = 1473
+            elif d_alt > 0:
+                vz = 1472
         vehicle.channels.overrides = {'2': pitch, '3': vz, '4': yaw,}
         time.sleep(0.8)
