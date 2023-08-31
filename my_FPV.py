@@ -20,6 +20,8 @@ def up_turn_go(needed_alt = 20, needed_heading = 0):
     pitch = 1500
     right_direction = False
     right_height = False
+    start_heading_home = False
+    heading_home = False
 
     print('+++++++++++++++++')
     print('ARM !!!')
@@ -52,7 +54,7 @@ def up_turn_go(needed_alt = 20, needed_heading = 0):
 
             d_alt = mav_alt - need_alt
 
-            print("Pitch:" + str(vehicle.attitude.pitch))
+            print("Home:" + str(heading_home))
 
             if not right_height and not right_direction:
                 if (d_alt < -12):
@@ -66,30 +68,50 @@ def up_turn_go(needed_alt = 20, needed_heading = 0):
                     vz = 1478
                     right_height = True
             elif right_height and not right_direction:
+                pitch = 1500
                 if (-12 < d_alt < 0):
                     # Need UP
                     vz = 1480
                 elif (d_alt > 0):
                     # Need Down
                     vz = 1478
-                if vehicle.heading and vehicle.heading >= need_heading + 30:
+                if vehicle.heading and vehicle.heading >= need_heading + 10:
                     yaw = 1450
-                elif vehicle.heading and vehicle.heading <= need_heading - 30:
+                elif vehicle.heading and vehicle.heading <= need_heading - 10:
                     yaw = 1550
                 elif vehicle.heading and vehicle.heading >= need_heading + 1:
                     yaw = 1479
                 elif vehicle.heading and vehicle.heading <= need_heading - 1:
                     yaw = 1521
                 elif vehicle.heading and vehicle.heading == need_heading:
+                    if start_heading_home:
+                        heading_home = True
+                        heading_home_start_time = time.time()
                     yaw = 1500
+                    pitch = 1000
                     right_direction = True
+                    start_time = time.time()
+
 
             elif right_height and right_direction:
-                pitch = 1000
-                if d_alt < 0:
-                    vz = 1475
-                elif d_alt > 0:
-                    vz = 1472
+                if not heading_home:
+                    if time.time() - start_time >= 5:
+                        need_heading = needed_heading + 180 if need_heading < 180 else need_heading - 180
+                        right_direction = False
+                        start_heading_home = True
+
+                    if d_alt < 0:
+                        vz = 1475
+                    elif d_alt > 0:
+                        vz = 1472
+                else:
+                    if time.time() - heading_home_start_time >= 5:
+                        pitch = 1500
+                        if d_alt < 0:
+                            vz = 1475
+                        elif d_alt > 0:
+                            vz = 1472
+
             vehicle.channels.overrides = {'2': pitch, '3': vz, '4': yaw,}
             time.sleep(0.8)
 
