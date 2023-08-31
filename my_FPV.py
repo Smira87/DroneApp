@@ -86,7 +86,7 @@ def up_turn_go(needed_alt = 20, needed_heading = 0):
                 elif vehicle.heading and vehicle.heading == need_heading:
                     if start_heading_home:
                         heading_home = True
-                        heading_home_start_time = time.time()
+
                     yaw = 1500
                     pitch = 1000
                     right_direction = True
@@ -95,7 +95,7 @@ def up_turn_go(needed_alt = 20, needed_heading = 0):
 
             elif right_height and right_direction:
                 if not heading_home:
-                    if time.time() - start_time >= 5:
+                    if time.time() - start_time >= 15:
                         need_heading = needed_heading + 180 if need_heading < 180 else need_heading - 180
                         right_direction = False
                         start_heading_home = True
@@ -105,7 +105,7 @@ def up_turn_go(needed_alt = 20, needed_heading = 0):
                     elif d_alt > 0:
                         vz = 1472
                 else:
-                    if time.time() - heading_home_start_time >= 5:
+                    if time.time() - start_time >= 15:
                         pitch = 1500
                         if d_alt < 0:
                             vz = 1475
