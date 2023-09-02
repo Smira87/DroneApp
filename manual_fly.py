@@ -22,6 +22,8 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
     right_height = False
     start_heading_home = False
     heading_home = False
+    distance = 0
+    timeframe = 0.8
 
     print('+++++++++++++++++')
     print('ARM !!!')
@@ -54,7 +56,7 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
 
             d_alt = mav_alt - need_alt
 
-            print("Needed Heading : " + str(need_heading))
+            print("Speed : " + str(vehicle.groundspeed))
 
             if not right_height and not right_direction:
                 if (d_alt < -12):
@@ -114,6 +116,7 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
                             vz = 1472
 
             vehicle.channels.overrides = {'2': pitch, '3': vz, '4': yaw,}
-            time.sleep(0.8)
+            time.sleep(timeframe)
+            distance += timeframe * vehicle.groundspeed
 
-up_turn_go(15, 0)
+up_turn_go(15, 180)
