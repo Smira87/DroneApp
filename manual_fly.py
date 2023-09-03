@@ -7,10 +7,12 @@ import asyncio
 
 # vehicle = connect('udpout:192.168.1.16:14552')
 # vehicle = connect('COM7')
-def up_turn_go(needed_alt = 15, needed_heading = 0):
+def up_turn_go(needed_alt = 15, needed_heading = 0, needed_distance = 35):
     need_alt = needed_alt
     need_heading = needed_heading
+    #need_distance = needed_distance
     if need_alt < 15: need_alt = 15
+    if needed_distance < 35: needed_distance = 35
     vehicle = connect('tcp:127.0.0.1:5763')
     vehicle.mode    = VehicleMode("STABILIZE")
     is_arm = 0
@@ -24,6 +26,9 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
     heading_home = False
     distance = 0
     timeframe = 0.8
+    start_forward = False
+    start_backward = False
+    fly_forward_time = 0
 
     print('+++++++++++++++++')
     print('ARM !!!')
@@ -56,7 +61,9 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
 
             d_alt = mav_alt - need_alt
 
-            print("Speed : " + str(vehicle.groundspeed))
+            print("Distance : " + str(distance))
+            print("Fly forward time : " + str(fly_forward_time))
+
 
             if not right_height and not right_direction:
                 if (d_alt < -12):
@@ -85,6 +92,8 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
                     pitch = 1000
                     right_direction = True
                     start_time = time.time()
+
+
                 elif vehicle.heading - need_heading > 355:
                     yaw = 1521
                 elif vehicle.heading >= need_heading + 20:
@@ -97,8 +106,11 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
                     yaw = 1521
 
             elif right_height and right_direction:
+
                 if not heading_home:
-                    if time.time() - start_time >= 15:
+                    fly_forward_time = time.time() - start_time
+                    start_forward = True
+                    if distance > needed_distance - 34:
                         need_heading = needed_heading + 180 if 0 <= need_heading < 180 else need_heading - 180
                         right_direction = False
                         start_heading_home = True
@@ -108,7 +120,7 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
                     elif d_alt > 0:
                         vz = 1472
                 else:
-                    if time.time() - start_time >= 15:
+                    if time.time() - start_time >= fly_forward_time:
                         pitch = 1500
                         if d_alt < 0:
                             vz = 1475
@@ -117,6 +129,7 @@ def up_turn_go(needed_alt = 15, needed_heading = 0):
 
             vehicle.channels.overrides = {'2': pitch, '3': vz, '4': yaw,}
             time.sleep(timeframe)
-            distance += timeframe * vehicle.groundspeed
+            if start_forward:
+                distance+= timeframe * vehicle.groundspeed
 
-up_turn_go(15, 180)
+up_turn_go(15, 180, 100)
