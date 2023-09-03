@@ -110,7 +110,7 @@ def up_turn_go(needed_alt = 15, needed_heading = 0, needed_distance = 35):
                 if not heading_home:
                     fly_forward_time = time.time() - start_time
                     start_forward = True
-                    if distance > needed_distance - 34:
+                    if distance > needed_distance - 35:
                         need_heading = needed_heading + 180 if 0 <= need_heading < 180 else need_heading - 180
                         right_direction = False
                         start_heading_home = True
@@ -120,7 +120,7 @@ def up_turn_go(needed_alt = 15, needed_heading = 0, needed_distance = 35):
                     elif d_alt > 0:
                         vz = 1472
                 else:
-                    if time.time() - start_time >= fly_forward_time:
+                    if time.time() - start_time > fly_forward_time + timeframe/2:
                         pitch = 1500
                         if d_alt < 0:
                             vz = 1475
@@ -132,4 +132,4 @@ def up_turn_go(needed_alt = 15, needed_heading = 0, needed_distance = 35):
             if start_forward:
                 distance+= timeframe * vehicle.groundspeed
 
-up_turn_go(15, 180, 100)
+up_turn_go(20, 180, 800)
