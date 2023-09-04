@@ -34,3 +34,31 @@ class Copter:
         print('ARMED !!!')
         print('+++++++++++++++++')
 
+    def fly_up(self, need_alt):
+        if (self.vehicle.armed):
+            while True:
+                try:
+                    mav_alt = self.vehicle.location.global_relative_frame.alt
+                except:
+                    pass
+                if (mav_alt is None): mav_alt = 0
+                print('+++++++++++++++++++++++++')
+                print(mav_alt)
+                print('======= GO UP !!! =======')
+                print('+++++++++++++++++++++++++')
+
+                d_alt = mav_alt - need_alt
+
+                if (d_alt < -12):
+                    # Need UP
+                    vz = 1500
+                elif (-5 < d_alt < 0):
+                    # Need UP
+                    vz = 1480
+                elif (d_alt > 0):
+                    # Need Down
+                    vz = 1478
+                    right_height = True
+
+                self.vehicle.channels.overrides = {'3': vz}
+                time.sleep(0.8)
