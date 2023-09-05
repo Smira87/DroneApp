@@ -86,3 +86,14 @@ class Copter:
         self.state['need_heading'] = heading
         while self.vehicle.heading != heading:
             self.set_vz_up()
+
+    def fly_forward(self, need_distance):
+        distance = 0
+        while distance < need_distance - 35:
+            self.state['pitch'] = 1000
+            d_alt = self.state['mav_alt'] - self.state['need_alt']
+            if d_alt < 0:
+                vz = 1475
+            elif d_alt > 0:
+                vz = 1472
+
