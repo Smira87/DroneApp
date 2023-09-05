@@ -5,11 +5,8 @@ from pymavlink import mavutil
 
 class Copter:
     def __init__(self):
-        self.armed = 0
-        self.mav_alt = 0
-        self.vz = 0
-        self.pitch = 1500
-        self.yaw = 1500
+        self.state = {'mav_alt': 0, 'vz': 0, 'pitch': 1500, 'yaw': 1500}
+
     def connect(self):
         print('+++++++++++++++++')
         print('CONNECTING !!!')
@@ -42,26 +39,25 @@ class Copter:
         if (self.vehicle.armed):
 
             try:
-                self.mav_alt = self.vehicle.location.global_relative_frame.alt
+                self.state['mav_alt'] = self.vehicle.location.global_relative_frame.alt
 
             except:
                 pass
 
-            self.vehicle.channels.overrides = {'2': self.pitch, '3': self.vz, '4': self.yaw,}
-            print(self.vz)
+            self.vehicle.channels.overrides = {'2': self.state['pitch'], '3': self.state['vz'], '4': self.state['yaw']}
             Timer(0.8, self.update).start()
     def fly_up(self, need_alt):
 
         while True:
-            d_alt = self.mav_alt - need_alt
+            d_alt = self.state['mav_alt'] - need_alt
             print(d_alt)
             if (d_alt < -12):
                 # Need UP
-                self.vz = 1500
+                self.state['vz'] = 1500
             elif (-5 < d_alt < 0):
                 # Need UP
-                self.vz = 1480
+                self.state['vz'] = 1480
             elif (d_alt > 0):
                 # Need Down
-                self.vz = 1478
+                self.state['vz'] = 1478
             time.sleep(0.8)
