@@ -49,15 +49,18 @@ class Copter:
     def fly_up(self, need_alt):
 
         while True:
-            d_alt = self.state['mav_alt'] - need_alt
-            print(d_alt)
-            if (d_alt < -12):
-                # Need UP
-                self.state['vz'] = 1500
-            elif (-5 < d_alt < 0):
-                # Need UP
-                self.state['vz'] = 1480
-            elif (d_alt > 0):
-                # Need Down
-                self.state['vz'] = 1478
+            self.set_vz_up(need_alt)
             time.sleep(0.8)
+
+    def set_vz_up(self, need_alt):
+        d_alt = self.state['mav_alt'] - need_alt
+        print(d_alt)
+        if (d_alt < -12):
+            # Need UP
+            self.state['vz'] = 1500
+        if (-12 < d_alt < 0):
+            # Need UP
+            self.state['vz'] = 1480
+        elif (d_alt > 0):
+            # Need Down
+            self.state['vz'] = 1478
