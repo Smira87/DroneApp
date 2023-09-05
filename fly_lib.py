@@ -48,7 +48,7 @@ class Copter:
             Timer(0.8, self.update).start()
     def fly_up(self, need_alt):
 
-        while True:
+        while self.state['mav_alt'] < need_alt:
             self.set_vz_up(need_alt)
             time.sleep(0.8)
 
@@ -64,3 +64,20 @@ class Copter:
         elif (d_alt > 0):
             # Need Down
             self.state['vz'] = 1478
+    def set_heading(self, heading):
+        if self.vehicle.heading - heading > 355:
+            self.state['yaw'] = 1521
+        elif self.vehicle.heading >= heading + 20:
+            self.state['yaw'] = 1450
+        elif self.vehicle.heading <= heading - 20:
+            self.state['yaw'] = 1550
+        elif self.vehicle.heading >= heading + 1:
+            self.state['yaw'] = 1479
+        elif self.vehicle.heading <= heading - 1:
+            self.state['yaw'] = 1521
+
+    def turn(self, need_alt, heading):
+        while self.vehicle.heading != heading:
+            self.set_vz_up(need_alt)
+            self.set_heading(heading)
+            time.sleep(0.8)
