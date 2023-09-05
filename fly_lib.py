@@ -5,7 +5,7 @@ from pymavlink import mavutil
 
 class Copter:
     def __init__(self):
-        self.state = {'mav_alt': 0, 'vz': 0, 'pitch': 1500, 'yaw': 1500}
+        self.state = {'mav_alt': 0, 'vz': 0, 'pitch': 1500, 'yaw': 1500, 'need_alt': 0, 'need_heading': 0}
 
     def connect(self):
         print('+++++++++++++++++')
@@ -47,13 +47,13 @@ class Copter:
             self.vehicle.channels.overrides = {'2': self.state['pitch'], '3': self.state['vz'], '4': self.state['yaw']}
             Timer(0.8, self.update).start()
     def fly_up(self, need_alt):
-
+        self.state['need_alt'] = need_alt
         while self.state['mav_alt'] < need_alt:
-            self.set_vz_up(need_alt)
+            self.set_vz_up()
             time.sleep(0.8)
 
-    def set_vz_up(self, need_alt):
-        d_alt = self.state['mav_alt'] - need_alt
+    def set_vz_up(self):
+        d_alt = self.state['mav_alt'] - self.state['need_alt']
         print(d_alt)
         if (d_alt < -12):
             # Need UP
@@ -64,20 +64,22 @@ class Copter:
         elif (d_alt > 0):
             # Need Down
             self.state['vz'] = 1478
-    def set_heading(self, heading):
-        if self.vehicle.heading - heading > 355:
+    def set_heading(self):
+        if self.vehicle.heading - self.state['need_heading'] > 355:
             self.state['yaw'] = 1521
-        elif self.vehicle.heading >= heading + 20:
+        elif self.vehicle.heading >= self.state['need_heading'] + 20:
             self.state['yaw'] = 1450
-        elif self.vehicle.heading <= heading - 20:
+        elif self.vehicle.heading <= self.state['need_heading'] - 20:
             self.state['yaw'] = 1550
-        elif self.vehicle.heading >= heading + 1:
+        elif self.vehicle.heading >= self.state['need_heading'] + 1:
             self.state['yaw'] = 1479
-        elif self.vehicle.heading <= heading - 1:
+        elif self.vehicle.heading <= self.state['need_heading'] - 1:
             self.state['yaw'] = 1521
 
-    def turn(self, need_alt, heading):
+    def turn(self, heading):
+        self.state['need_heading'] = heading
         while self.vehicle.heading != heading:
-            self.set_vz_up(need_alt)
-            self.set_heading(heading)
+            self.set_vz_up()
+            self.set_heading()
             time.sleep(0.8)
+        self.state['yaw'] = 1500
