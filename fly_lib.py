@@ -68,12 +68,13 @@ class Copter:
     def set_heading(self):
         if self.vehicle.heading - self.state['need_heading'] > 355:
             self.state['yaw'] = 1521
-        elif self.vehicle.heading >= self.state['need_heading'] + 20 or\
-                self.state['need_heading'] - self.vehicle.heading > 180:
+        elif self.state['need_heading'] - self.vehicle.heading > 180:
             self.state['yaw'] = 1450
         elif self.vehicle.heading <= self.state['need_heading'] - 20 or\
                 self.vehicle.heading - self.state['need_heading'] > 180:
             self.state['yaw'] = 1550
+        elif self.vehicle.heading >= self.state['need_heading'] + 20:
+            self.state['yaw'] = 1450
         elif self.vehicle.heading >= self.state['need_heading'] + 1:
             self.state['yaw'] = 1479
         elif self.vehicle.heading <= self.state['need_heading'] - 1:
