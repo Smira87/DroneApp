@@ -13,6 +13,7 @@ class Copter:
         print('+++++++++++++++++')
         self.vehicle = connect('tcp:127.0.0.1:5763')
         self.vehicle.mode = VehicleMode("STABILIZE")
+        self.state['need_heading'] = self.vehicle.heading
         print('+++++++++++++++++')
         print('CONNECTED !!!')
         print('+++++++++++++++++')
@@ -43,7 +44,7 @@ class Copter:
 
             except:
                 pass
-
+            self.set_heading()
             self.vehicle.channels.overrides = {'2': self.state['pitch'], '3': self.state['vz'], '4': self.state['yaw']}
             Timer(0.8, self.update).start()
     def fly_up(self, need_alt):
@@ -54,7 +55,7 @@ class Copter:
 
     def set_vz_up(self):
         d_alt = self.state['mav_alt'] - self.state['need_alt']
-        print(d_alt)
+        print(self.state['vz'])
         if (d_alt < -12):
             # Need UP
             self.state['vz'] = 1500
@@ -67,19 +68,20 @@ class Copter:
     def set_heading(self):
         if self.vehicle.heading - self.state['need_heading'] > 355:
             self.state['yaw'] = 1521
-        elif self.vehicle.heading >= self.state['need_heading'] + 20:
+        elif self.vehicle.heading >= self.state['need_heading'] + 20 or\
+                self.state['need_heading'] - self.vehicle.heading > 180:
             self.state['yaw'] = 1450
-        elif self.vehicle.heading <= self.state['need_heading'] - 20:
+        elif self.vehicle.heading <= self.state['need_heading'] - 20 or\
+                self.vehicle.heading - self.state['need_heading'] > 180:
             self.state['yaw'] = 1550
         elif self.vehicle.heading >= self.state['need_heading'] + 1:
             self.state['yaw'] = 1479
         elif self.vehicle.heading <= self.state['need_heading'] - 1:
             self.state['yaw'] = 1521
+        elif self.vehicle.heading == self.state['need_heading']:
+            self.state['yaw'] = 1500
 
     def turn(self, heading):
         self.state['need_heading'] = heading
         while self.vehicle.heading != heading:
             self.set_vz_up()
-            self.set_heading()
-            time.sleep(0.8)
-        self.state['yaw'] = 1500
