@@ -5,6 +5,7 @@ from pymavlink import mavutil
 
 class Copter:
     timeframe = 0.1
+    distance = 0
     def __init__(self):
         self.state = {'mav_alt': 0, 'rc_throttle': 0, 'rc_pitch': 1500, 'rc_yaw': 1500, 'need_alt': 0, 'need_heading': 0}
         self.fast_up = 1900
@@ -44,11 +45,12 @@ class Copter:
 
             try:
                 self.state['mav_alt'] = self.vehicle.location.global_relative_frame.alt
-
+                self.set_heading()
             except:
                 pass
-            self.set_heading()
-            print(self.state['rc_throttle'])
+
+            self.distance += self.timeframe * self.vehicle.groundspeed
+            print(self.distance)
             self.vehicle.channels.overrides = {'2': self.state['rc_pitch'], '3': self.state['rc_throttle'], '4': self.state['rc_yaw']}
             Timer(self.timeframe, self.update).start()
 
@@ -72,21 +74,34 @@ class Copter:
 
 
     def set_heading(self):
-        if self.vehicle.heading and self.vehicle.heading - self.state['need_heading'] > 355:
+        if self.vehicle.heading - self.state['need_heading'] > 355:
             self.state['rc_yaw'] = 1521
-        elif self.vehicle.heading and self.state['need_heading'] - self.vehicle.heading > 180:
+        elif self.state['need_heading'] - self.vehicle.heading > 180:
             self.state['rc_yaw'] = 1450
-        elif self.vehicle.heading and self.vehicle.heading <= self.state['need_heading'] - 20 or\
+        elif self.vehicle.heading <= self.state['need_heading'] - 20 or\
                 self.vehicle.heading - self.state['need_heading'] > 180:
             self.state['rc_yaw'] = 1550
-        elif self.vehicle.heading and self.vehicle.heading >= self.state['need_heading'] + 20:
+        elif self.vehicle.heading >= self.state['need_heading'] + 20:
             self.state['rc_yaw'] = 1450
-        elif self.vehicle.heading and self.vehicle.heading >= self.state['need_heading'] + 1:
+        elif self.vehicle.heading >= self.state['need_heading'] + 1:
             self.state['rc_yaw'] = 1479
-        elif self.vehicle.heading and self.vehicle.heading <= self.state['need_heading'] - 1:
+        elif self.vehicle.heading <= self.state['need_heading'] - 1:
             self.state['rc_yaw'] = 1521
-        elif self.vehicle.heading and self.vehicle.heading == self.state['need_heading']:
+        elif self.vehicle.heading == self.state['need_heading']:
             self.state['rc_yaw'] = 1500
 
     def turn(self, heading):
         self.state['need_heading'] = heading
+
+    def fly_forward(self, needed_distance = 40):
+        if needed_distance < 40: needed_distance == 40
+
+        while self.vehicle.heading != self.state['need_heading'] :
+            pass
+        self.distance = 0
+        self.state['rc_pitch'] = 1000
+        while self.distance < needed_distance - 30:
+            pass
+
+        self.state['rc_pitch'] = 1500
+        time.sleep(15)
