@@ -87,3 +87,6 @@ class Copter:
             self.state['rc_yaw'] = 1521
         elif self.vehicle.heading and self.vehicle.heading == self.state['need_heading']:
             self.state['rc_yaw'] = 1500
+
+    def turn(self, heading):
+        self.state['need_heading'] = heading
